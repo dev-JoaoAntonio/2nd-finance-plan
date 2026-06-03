@@ -1,0 +1,97 @@
+/* A fonte Atkinson Hyperlegible é importada no main.ts (resolução via Vite). */
+
+/* ───────────────────────────────────────────────────────────
+   Escala de fonte acessível.
+   --fp-font-base é controlada pelo botão A− / A+ (store "ui").
+   Componentes-chave usam "em" para acompanhar a escala.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  --fp-font-base: 18px;
+}
+
+html {
+  font-size: var(--fp-font-base);
+}
+
+body {
+  font-family: 'Atkinson Hyperlegible', 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #0f172a; /* texto quase-preto: contraste alto (~16:1 no branco) */
+  background: #f1f5f9;
+}
+
+/* Faz os componentes Quasar acompanharem a escala de fonte (padrão deles é menor). */
+.q-btn,
+.q-item__label,
+.q-field__native,
+.q-field__input,
+.q-field__label,
+.q-table tbody td,
+.q-tab__label,
+.q-chip {
+  font-size: 1rem;
+}
+.q-table thead th {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Alvos de toque grandes (≥ 48px) e botões confortáveis para a idosa. */
+.q-btn {
+  min-height: 48px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.q-item {
+  min-height: 56px;
+}
+
+/* Foco bem visível (acessibilidade de teclado). */
+*:focus-visible {
+  outline: 3px solid #0369a1;
+  outline-offset: 2px;
+}
+
+/* Tipografia de apoio */
+.fp-page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+.fp-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+.fp-muted {
+  color: #475569; /* cinza com contraste adequado (~7:1) */
+}
+.fp-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* Cartões com leve elevação e cantos generosos. */
+.fp-card {
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+/* Realces semânticos (nunca só cor: sempre acompanham texto/ícone). */
+.fp-positive {
+  color: #047857;
+}
+.fp-negative {
+  color: #b91c1c;
+}
+
+/* Reduz animações para quem prefere. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
