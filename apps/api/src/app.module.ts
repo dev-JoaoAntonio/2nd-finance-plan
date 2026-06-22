@@ -1,25 +1,26 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { CategoriesModule } from './categories/categories.module';
-import { CategorizationModule } from './categorization/categorization.module';
 import { ExpensesModule } from './expenses/expenses.module';
-import { IncomeModule } from './income/income.module';
-import { AnalyticsModule } from './analytics/analytics.module';
+import { GoalsModule } from './goals/goals.module';
+import { MonthlyParametersModule } from './monthly-parameters/monthly-parameters.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
-    CategorizationModule,
     AuthModule,
-    UsersModule,
     CategoriesModule,
     ExpensesModule,
-    IncomeModule,
-    AnalyticsModule,
+    GoalsModule,
+    MonthlyParametersModule,
+    TransactionsModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
 export class AppModule {}

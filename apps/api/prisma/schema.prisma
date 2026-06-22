@@ -1,87 +1,106 @@
-// Prisma schema — planejador financeiro
-// Banco: PostgreSQL (Supabase). url = pooler (runtime), directUrl = conexão direta (migrations).
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"] // rhel = runtime Vercel/Lambda
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
-model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String
-  name         String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  categories   Category[]
-  expenses     Expense[]
-  incomes      Income[]
-}
-
-model Category {
-  id        String         @id @default(uuid())
-  userId    String
-  name      String
-  color     String // hex, ex. "#0369A1"
-  icon      String // nome do ícone (Material Symbols), ex. "restaurant"
-  isDefault Boolean        @default(false)
-  createdAt DateTime       @default(now())
-
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rules     CategoryRule[]
-  expenses  Expense[]
-
-  @@unique([userId, name])
-  @@index([userId])
-}
-
-model CategoryRule {
-  id         String   @id @default(uuid())
-  categoryId String
-  keyword    String // sempre armazenado em minúsculo
-  createdAt  DateTime @default(now())
-
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@index([categoryId])
+  url       = env("DATABASE_URL") // pooled (pgbouncer :6543) em runtime
+  directUrl = env("DIRECT_URL") // direto (:5432) p/ migrations
 }
 
 model Expense {
-  id          String    @id @default(uuid())
-  userId      String
-  categoryId  String?
-  amount      Decimal   @db.Decimal(12, 2)
-  description String
-  date        DateTime
-  note        String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String      @id @default(uuid()) @db.Uuid
+  title             String
+  description       String?
+  amount            Decimal     @db.Decimal(10, 2)
+  type              String // 'fixed' | 'variable' (hoje só 'fixed' é usado)
+  category_id       String?     @db.Uuid
+  referenceDate     DateTime    @map("reference_date") @db.Date
+  created_at        DateTime?   @default(now()) @db.Timestamptz(6)
+  spentAmount       Decimal?    @default(0.00) @map("spent_amount") @db.Decimal(10, 2)
+  sacrificePriority Int?        @default(5) @map("sacrifice_priority")
+  categories        categories? @relation(fields: [category_id], references: [id], onUpdate: NoAction)
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  @@index([userId, date])
-  @@index([categoryId])
+  @@map("expenses")
 }
 
-// Renda/receita do usuário. Toda entrada exige valor (quanto) e origem (de onde vem).
-model Income {
-  id        String   @id @default(uuid())
-  userId    String
-  amount    Decimal  @db.Decimal(12, 2)
-  source    String // de onde vem o dinheiro, ex. "Salário", "Freelance"
-  note      String? // detalhes opcionais
-  date      DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model MonthlyParameter {
+  id            String    @id @default(uuid()) @db.Uuid
+  referenceDate DateTime  @unique @map("reference_date") @db.Date
+  baseIncome    Decimal   @map("base_income") @db.Decimal(10, 2)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("monthly_parameters")
+}
 
-  @@index([userId, date])
+model IncomeSource {
+  id            String    @id @default(uuid()) @db.Uuid
+  referenceDate DateTime  @map("reference_date") @db.Date
+  description   String
+  amount        Decimal   @db.Decimal(10, 2)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([referenceDate])
+  @@map("income_sources")
+}
+
+model Goal {
+  id            String             @id @default(uuid()) @db.Uuid
+  title         String
+  targetAmount  Decimal            @map("target_amount") @db.Decimal(10, 2)
+  savedAmount   Decimal?           @default(0) @map("saved_amount") @db.Decimal(10, 2)
+  isPhase1      Boolean?           @default(false) @map("is_phase_1")
+  isCompleted   Boolean?           @default(false) @map("is_completed")
+  targetDate    DateTime?          @map("target_date") @db.Date
+  created_at    DateTime?          @default(now()) @db.Timestamptz(6)
+  contributions GoalContribution[]
+
+  @@map("goals")
+}
+
+model GoalContribution {
+  id            String    @id @default(uuid()) @db.Uuid
+  goalId        String    @map("goal_id") @db.Uuid
+  referenceDate DateTime  @map("reference_date") @db.Date
+  amount        Decimal   @db.Decimal(12, 2)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  goal          Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([goalId, referenceDate])
+  @@index([goalId])
+  @@map("goal_contributions")
+}
+
+model categories {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String
+  color        String?
+  created_at   DateTime?     @default(now()) @db.Timestamptz(6)
+  expenses     Expense[]
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String     @id @default(uuid()) @db.Uuid
+  amount      Decimal    @db.Decimal(10, 2)
+  description String?
+  occurredAt  DateTime   @map("occurred_at") @db.Date
+  categoryId  String     @map("category_id") @db.Uuid
+  category    categories @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  createdAt   DateTime?  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([occurredAt])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  username  String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
 }

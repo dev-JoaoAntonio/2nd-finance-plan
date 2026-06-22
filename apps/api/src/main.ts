@@ -1,35 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
-
   app.setGlobalPrefix('api');
-
-  // CORS aceita uma lista de origens separada por vírgula (um site por marca).
-  const corsOrigins = config
-    .get<string>('CORS_ORIGIN', 'http://localhost:9000')
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
-
-  app.enableCors({
-    origin: corsOrigins,
-    credentials: true,
-  });
-
+  app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
       transform: true,
+      forbidNonWhitelisted: false,
     }),
   );
-
-  const port = config.get<number>('PORT', 3000);
+  const port = process.env.PORT ?? 3000;
   await app.listen(port);
   // eslint-disable-next-line no-console
   console.log(`API rodando em http://localhost:${port}/api`);

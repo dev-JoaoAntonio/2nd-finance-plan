@@ -1,35 +1,41 @@
 import {
-  IsString,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
   IsNumber,
-  IsPositive,
   IsOptional,
-  IsDateString,
-  IsUUID,
-  MaxLength,
-  Max,
+  IsString,
+  Matches,
+  Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateExpenseDto {
-  @Type(() => Number)
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Valor inválido.' })
-  @IsPositive({ message: 'O valor precisa ser maior que zero.' })
-  @Max(1_000_000_000, { message: 'Valor acima do limite permitido.' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsNumber()
+  @Min(0)
   amount: number;
 
-  @IsString()
-  @MaxLength(200)
-  description: string;
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  spentAmount?: number;
 
-  @IsDateString({}, { message: 'Data inválida.' })
-  date: string;
+  @IsIn(['fixed', 'variable'])
+  type: string;
 
   @IsOptional()
-  @IsUUID('4', { message: 'Categoria inválida.' })
-  categoryId?: string;
+  @IsInt()
+  sacrificePriority?: number;
 
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  note?: string;
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'referenceDate deve estar no formato YYYY-MM-DD',
+  })
+  referenceDate: string;
 }

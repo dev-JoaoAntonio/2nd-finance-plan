@@ -1,13 +1,45 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsBoolean } from 'class-validator';
-import { CreateExpenseDto } from './create-expense.dto';
+import {
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  Min,
+} from 'class-validator';
 
-export class UpdateExpenseDto extends PartialType(CreateExpenseDto) {
-  /**
-   * Quando true, remove a categoria (deixa "sem categoria"). Útil porque um
-   * PATCH com categoryId ausente não consegue distinguir "não mexer" de "limpar".
-   */
+export class UpdateExpenseDto {
   @IsOptional()
-  @IsBoolean()
-  clearCategory?: boolean;
+  @IsString()
+  @IsNotEmpty()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  amount?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  spentAmount?: number;
+
+  @IsOptional()
+  @IsIn(['fixed', 'variable'])
+  type?: string;
+
+  @IsOptional()
+  @IsInt()
+  sacrificePriority?: number;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'referenceDate deve estar no formato YYYY-MM-DD',
+  })
+  referenceDate?: string;
 }

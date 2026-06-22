@@ -1,6 +1,40 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { routes } from './routes';
 import { useAuthStore } from '@/stores/auth';
+
+const routes = [
+  {
+    path: '/login',
+    name: 'login',
+    meta: { public: true },
+    component: () => import('@/views/LoginView.vue'),
+  },
+  {
+    path: '/',
+    name: 'dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+  },
+  {
+    path: '/expenses',
+    name: 'expenses',
+    component: () => import('@/views/ExpensesView.vue'),
+  },
+  {
+    path: '/goals',
+    name: 'goals',
+    component: () => import('@/views/GoalsView.vue'),
+  },
+  {
+    path: '/config',
+    name: 'config',
+    component: () => import('@/views/ConfigView.vue'),
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/SettingsView.vue'),
+  },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+];
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,13 +44,11 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore();
-  const requiresAuth = to.matched.some((r) => r.meta.requiresAuth);
-
-  if (requiresAuth && !auth.isAuthenticated) {
-    return { name: 'login', query: { redirect: to.fullPath } };
+  const isPublic = to.meta.public === true;
+  if (!isPublic && !auth.isAuthenticated) {
+    return { name: 'login' };
   }
-  // Já autenticado tentando ir para login/registro → manda para o início.
-  if (!requiresAuth && auth.isAuthenticated && (to.name === 'login' || to.name === 'register')) {
+  if (isPublic && auth.isAuthenticated) {
     return { name: 'dashboard' };
   }
   return true;

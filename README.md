@@ -1,102 +1,45 @@
-# 💰 Meu Planejador Financeiro
+# 💸 Finance Plan — Valdeci
 
-Sistema de planejamento financeiro pessoal com **foco em acessibilidade** (a usuária-alvo é idosa):
-fonte grande e ajustável, alto contraste, navegação simples e linguagem clara.
+Controle financeiro mensal: **renda** (com auditoria de fontes), **passivos fixos** (custos recorrentes), **transações** por categoria, uma **meta de longo prazo** com aportes/simulação e **conquistas**. Dashboard com KPIs, projeção, insights, gráficos de 12 meses e heatmap diário. Idioma pt-BR, moeda BRL. Estética editorial em **verde musgo + bege**.
 
-A pessoa **cadastra seus gastos manualmente**, eles são **categorizados automaticamente** por
-palavras-chave (com ajuste manual) e ela acompanha uma **análise** com dashboard, gráficos e tabelas.
+> Reconstruído a partir do `BUILD_SPEC.md`, com 3 ajustes desta versão: **sem 2FA**, **meta de longo prazo genérica** (sem tema fixo) e **paleta verde/bege** (no lugar do rosa/azul).
 
-## 🧱 Tecnologias
+## 🧱 Stack
 
-| Camada    | Stack                                                                        |
-| --------- | ---------------------------------------------------------------------------- |
-| Front-end | Vue 3 + **Quasar** (Vite, TypeScript), Pinia, Vue Router, Axios, ApexCharts  |
-| Back-end  | **NestJS** + **Prisma**, JWT (passport-jwt), bcryptjs, class-validator        |
-| Banco     | **PostgreSQL** (Supabase)                                                    |
-| Design    | Fundamentado na skill `ui-ux-pro-max` (tipografia Atkinson Hyperlegible, paleta de alto contraste, gráficos acessíveis) |
+| Camada | Tecnologias |
+| --- | --- |
+| Front | Vue 3 + Vite + **Tailwind**, Pinia, Vue Router, **Chart.js** (vue-chartjs), axios |
+| Back | **NestJS** + **Prisma**, JWT (passport-jwt), bcryptjs, class-validator |
+| Banco | **PostgreSQL** (Supabase/Neon/Railway) |
+| Deploy | **Vercel** (1 projeto): web estático + API como função serverless |
 
-## 📁 Estrutura
+Monorepo **npm workspaces**: `apps/web` (Vue) + `apps/api` (NestJS) + `api/index.ts` (entry serverless).
 
-```
-.
-├─ apps/
-│  ├─ api/   → API NestJS + Prisma
-│  └─ web/   → App Vue 3 + Quasar
-├─ package.json   → scripts que rodam os dois apps juntos
-└─ .claude/skills/ui-ux-pro-max/  → skill de UI/UX (versão fixa v2.5.0)
-```
-
-## ✅ Pré-requisitos
-
-- Node.js 20+ (testado no 24)
-- Uma conta/projeto no [Supabase](https://supabase.com) (free)
-
-## 🚀 Como rodar
-
-### 1. Banco de dados (Supabase)
-
-1. Crie um projeto no Supabase.
-2. Vá em **Project Settings → Database → Connection string** e copie:
-   - **Connection pooling** (Transaction, porta **6543**) → vira `DATABASE_URL`
-   - **Direct connection** (porta **5432**) → vira `DIRECT_URL`
-3. Crie o arquivo `apps/api/.env` a partir do exemplo e preencha as strings:
-
-   ```bash
-   cp apps/api/.env.example apps/api/.env
-   # edite apps/api/.env trocando [PROJECT-REF], [PASSWORD], [REGION] e o JWT_SECRET
-   ```
-
-### 2. Instalar dependências
+## 🚀 Rodar localmente
 
 ```bash
-npm run install:all
+npm install
+cp apps/api/.env.example apps/api/.env   # preencha DATABASE_URL / DIRECT_URL / JWT_SECRET
+npm run prisma:generate
+npm run prisma:migrate                   # (ou: npm run prisma:push) cria as tabelas
+npm run prisma:seed                      # cria o usuário e categorias padrão
+npm run dev                              # API :3000  ·  Web :5173 (proxy /api)
 ```
 
-### 3. Criar as tabelas no banco
+**Login inicial** (criado pelo seed): usuário `valdeci`, senha `mudar123` (mude depois em *Segurança*).
 
-```bash
-npm run prisma:migrate
-```
+## ☁️ Deploy na Vercel (1 projeto)
 
-> Isso roda a migration inicial e gera o Prisma Client. As categorias padrão
-> (Alimentação, Moradia, Transporte, Saúde, etc.) são criadas automaticamente
-> para **cada usuário** no momento do cadastro.
+O [vercel.json](vercel.json) já define tudo (build da API + web, função `api/index.ts`, rewrites SPA). Basta:
 
-### 4. Rodar os dois apps
+1. Importar o repositório na Vercel (**Root Directory = raiz**, Framework = *Other*).
+2. Definir as variáveis: `DATABASE_URL` (pooler, :6543), `DIRECT_URL` (direto, :5432), `JWT_SECRET`, `JWT_EXPIRES_IN`.
+3. Rodar as migrations uma vez contra o banco (`npm run prisma:migrate` / `prisma:deploy` local apontando para o Postgres) e o `prisma:seed`.
 
-```bash
-npm run dev
-```
+## ✏️ Personalização
 
-- API:  http://localhost:3000/api
-- Web:  http://localhost:9000
-
-Crie uma conta na tela inicial e comece a lançar seus gastos. 🎉
-
-## 🔌 Principais endpoints da API (`/api`)
-
-| Método | Rota                          | Descrição                                  |
-| ------ | ----------------------------- | ------------------------------------------ |
-| POST   | `/auth/register`              | Cria conta + semeia categorias padrão      |
-| POST   | `/auth/login`                 | Login → `{ token, user }`                  |
-| GET    | `/me`                         | Dados do usuário logado                    |
-| GET    | `/categories`                 | Lista categorias + regras                  |
-| POST   | `/categories`                 | Cria categoria                             |
-| POST   | `/categories/:id/rules`       | Adiciona palavra-chave                     |
-| GET    | `/expenses?month=AAAA-MM`     | Lista gastos (filtros: mês, categoria)     |
-| POST   | `/expenses`                   | Cria gasto (auto-categoriza se sem categoria) |
-| POST   | `/expenses/recategorize`      | Reaplica regras nos gastos sem categoria   |
-| GET    | `/analytics/summary`          | Total do mês, comparação, maior categoria  |
-| GET    | `/analytics/by-category`      | Gasto por categoria (%)                    |
-| GET    | `/analytics/monthly-trend`    | Total dos últimos meses                    |
-
-Todas as rotas (exceto `/auth/*`) exigem o header `Authorization: Bearer <token>`.
-
-## ♿ Acessibilidade (decisões de design)
-
-- **Fonte Atkinson Hyperlegible** (desenhada para máxima legibilidade).
-- **Tema claro de alto contraste** (texto quase-preto sobre fundo claro, ≥ 4.5:1).
-- **Ajuste de tamanho de letra** (A− / A+) persistente, no topo e na tela de conta.
-- **Botões e alvos grandes** (≥ 48px), rótulos sempre com texto + ícone.
-- **Gráfico de rosca sempre acompanhado de tabela** (não depende só de cor).
-- Moeda em **R$** e datas no formato brasileiro.
+- **Usuário/nome:** `apps/api/prisma/seed.ts`.
+- **Título da meta de longo prazo:** `LONG_TERM_TITLE` em `apps/web/src/stores/finance.ts`.
+- **Paleta:** `apps/web/tailwind.config.js` (chaves `sky` = verde, `pink` = bege) + botão de login em `LoginView.vue`.
+- **Fotos do login:** `apps/web/public/login/*.svg` (são placeholders — troque por fotos reais).
+- **Categorias padrão:** lista em `apps/api/prisma/seed.ts`.

@@ -1,35 +1,28 @@
 {
-  "name": "finance-plan-web",
-  "version": "0.1.0",
+  "name": "@finance-plan/web",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Front-end Vue3 + Quasar do planejador financeiro (foco em acessibilidade)",
   "scripts": {
     "dev": "vite",
-    "dev:valdeci": "vite --mode valdeci",
-    "build": "vite build",
-    "build:original": "vite build --mode original",
-    "build:valdeci": "vite build --mode valdeci",
-    "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit"
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/atkinson-hyperlegible": "^5.1.0",
-    "@quasar/extras": "^1.16.17",
-    "apexcharts": "^5.13.0",
-    "axios": "^1.7.9",
-    "pinia": "^2.3.0",
-    "quasar": "^2.17.7",
+    "axios": "^1.7.7",
+    "chart.js": "^4.4.6",
+    "pinia": "^2.2.6",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "vue3-apexcharts": "^1.11.1"
+    "vue-chartjs": "^5.3.2",
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@quasar/vite-plugin": "^1.9.0",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "sass-embedded": "^1.93.2",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.7",
-    "vue-tsc": "^2.2.0"
+    "@vitejs/plugin-vue": "^5.2.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.10"
   }
 }

@@ -1,165 +1,125 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CategorizationService } from '../categorization/categorization.service';
-import { monthRange } from '../common/month-range';
+import { toDateString, toNumber } from '../common/serialize';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { QueryExpenseDto } from './dto/query-expense.dto';
 
-const expenseInclude = {
-  category: { select: { id: true, name: true, color: true, icon: true } },
-} satisfies Prisma.ExpenseInclude;
+type ExpenseRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  amount: Prisma.Decimal;
+  spentAmount: Prisma.Decimal | null;
+  type: string;
+  sacrificePriority: number | null;
+  referenceDate: Date;
+};
 
-type ExpenseWithCategory = Prisma.ExpenseGetPayload<{
-  include: typeof expenseInclude;
-}>;
+function serialize(e: ExpenseRow) {
+  return {
+    id: e.id,
+    title: e.title,
+    description: e.description,
+    amount: toNumber(e.amount),
+    spentAmount: toNumber(e.spentAmount),
+    type: e.type,
+    sacrificePriority: e.sacrificePriority ?? 5,
+    referenceDate: toDateString(e.referenceDate),
+  };
+}
 
 @Injectable()
 export class ExpensesService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly categorization: CategorizationService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(userId: string, query: QueryExpenseDto) {
-    const where: Prisma.ExpenseWhereInput = { userId };
-
-    if (query.month) {
-      const { start, end } = monthRange(query.month);
-      where.date = { gte: start, lt: end };
-    }
-    if (query.categoryId) {
-      where.categoryId = query.categoryId;
-    }
-
-    const expenses = await this.prisma.expense.findMany({
+  async findAll(referenceDate?: string) {
+    if (referenceDate) await this.ensureFixedForMonth(referenceDate);
+    const where: Prisma.ExpenseWhereInput = referenceDate
+      ? { referenceDate: new Date(referenceDate) }
+      : {};
+    const rows = await this.prisma.expense.findMany({
       where,
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
-      include: expenseInclude,
+      orderBy: { created_at: 'asc' },
     });
-    return expenses.map(serialize);
+    return rows.map(serialize);
   }
 
-  async create(userId: string, dto: CreateExpenseDto) {
-    let categoryId = dto.categoryId ?? null;
-    let autoCategorized = false;
+  /** Passivos fixos são recorrentes: se o mês ainda não tem fixos, clona os do
+   *  mês anterior mais recente (zerando o gasto). */
+  private async ensureFixedForMonth(referenceDate: string) {
+    const date = new Date(referenceDate);
+    const existing = await this.prisma.expense.count({
+      where: { type: 'fixed', referenceDate: date },
+    });
+    if (existing > 0) return;
 
-    if (categoryId) {
-      await this.ensureCategoryOwned(userId, categoryId);
-    } else {
-      categoryId = await this.categorization.suggestCategoryId(
-        userId,
-        dto.description,
-      );
-      autoCategorized = categoryId !== null;
-    }
+    const last = await this.prisma.expense.findFirst({
+      where: { type: 'fixed', referenceDate: { lt: date } },
+      orderBy: { referenceDate: 'desc' },
+      select: { referenceDate: true },
+    });
+    if (!last) return;
 
-    const expense = await this.prisma.expense.create({
+    const prev = await this.prisma.expense.findMany({
+      where: { type: 'fixed', referenceDate: last.referenceDate },
+    });
+    if (prev.length === 0) return;
+
+    await this.prisma.expense.createMany({
+      data: prev.map((p) => ({
+        title: p.title,
+        description: p.description,
+        amount: p.amount,
+        type: p.type,
+        sacrificePriority: p.sacrificePriority,
+        category_id: p.category_id,
+        referenceDate: date,
+        spentAmount: new Prisma.Decimal(0),
+      })),
+    });
+  }
+
+  async create(dto: CreateExpenseDto) {
+    const row = await this.prisma.expense.create({
       data: {
-        userId,
-        categoryId,
+        title: dto.title.trim(),
+        description: dto.description ?? null,
         amount: new Prisma.Decimal(dto.amount),
-        description: dto.description.trim(),
-        date: new Date(dto.date),
-        note: dto.note?.trim() || null,
+        spentAmount: new Prisma.Decimal(dto.spentAmount ?? 0),
+        type: dto.type,
+        sacrificePriority: dto.sacrificePriority ?? 5,
+        referenceDate: new Date(dto.referenceDate),
       },
-      include: expenseInclude,
     });
-
-    return { ...serialize(expense), autoCategorized };
+    return serialize(row);
   }
 
-  async update(userId: string, id: string, dto: UpdateExpenseDto) {
-    await this.ensureExpenseOwned(userId, id);
-
+  async update(id: string, dto: UpdateExpenseDto) {
+    await this.ensureExists(id);
     const data: Prisma.ExpenseUpdateInput = {};
+    if (dto.title !== undefined) data.title = dto.title.trim();
+    if (dto.description !== undefined) data.description = dto.description ?? null;
     if (dto.amount !== undefined) data.amount = new Prisma.Decimal(dto.amount);
-    if (dto.description !== undefined) data.description = dto.description.trim();
-    if (dto.date !== undefined) data.date = new Date(dto.date);
-    if (dto.note !== undefined) data.note = dto.note?.trim() || null;
-
-    if (dto.clearCategory) {
-      data.category = { disconnect: true };
-    } else if (dto.categoryId !== undefined) {
-      await this.ensureCategoryOwned(userId, dto.categoryId);
-      data.category = { connect: { id: dto.categoryId } };
-    }
-
-    const expense = await this.prisma.expense.update({
-      where: { id },
-      data,
-      include: expenseInclude,
-    });
-    return serialize(expense);
+    if (dto.spentAmount !== undefined)
+      data.spentAmount = new Prisma.Decimal(dto.spentAmount);
+    if (dto.type !== undefined) data.type = dto.type;
+    if (dto.sacrificePriority !== undefined)
+      data.sacrificePriority = dto.sacrificePriority;
+    if (dto.referenceDate !== undefined)
+      data.referenceDate = new Date(dto.referenceDate);
+    const row = await this.prisma.expense.update({ where: { id }, data });
+    return serialize(row);
   }
 
-  async remove(userId: string, id: string) {
-    await this.ensureExpenseOwned(userId, id);
+  async remove(id: string) {
+    await this.ensureExists(id);
     await this.prisma.expense.delete({ where: { id } });
-    return { ok: true };
+    return { success: true };
   }
 
-  /** Reaplica as regras de categorização aos gastos do usuário que estão sem categoria. */
-  async recategorize(userId: string) {
-    const uncategorized = await this.prisma.expense.findMany({
-      where: { userId, categoryId: null },
-      select: { id: true, description: true },
-    });
-
-    let updated = 0;
-    for (const exp of uncategorized) {
-      const categoryId = await this.categorization.suggestCategoryId(
-        userId,
-        exp.description,
-      );
-      if (categoryId) {
-        await this.prisma.expense.update({
-          where: { id: exp.id },
-          data: { categoryId },
-        });
-        updated++;
-      }
-    }
-    return { updated };
+  private async ensureExists(id: string) {
+    const found = await this.prisma.expense.findUnique({ where: { id } });
+    if (!found) throw new NotFoundException(`Despesa ${id} não encontrada.`);
   }
-
-  private async ensureCategoryOwned(userId: string, categoryId: string) {
-    const category = await this.prisma.category.findUnique({
-      where: { id: categoryId },
-      select: { userId: true },
-    });
-    if (!category || category.userId !== userId) {
-      throw new BadRequestException('Categoria inválida.');
-    }
-  }
-
-  private async ensureExpenseOwned(userId: string, id: string) {
-    const expense = await this.prisma.expense.findUnique({
-      where: { id },
-      select: { userId: true },
-    });
-    if (!expense || expense.userId !== userId) {
-      throw new NotFoundException('Gasto não encontrado.');
-    }
-  }
-}
-
-/** Converte o Decimal do Prisma em number para o front consumir facilmente. */
-function serialize(expense: ExpenseWithCategory) {
-  return {
-    id: expense.id,
-    amount: Number(expense.amount),
-    description: expense.description,
-    date: expense.date.toISOString(),
-    note: expense.note,
-    categoryId: expense.categoryId,
-    category: expense.category,
-    createdAt: expense.createdAt.toISOString(),
-    updatedAt: expense.updatedAt.toISOString(),
-  };
 }

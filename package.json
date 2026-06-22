@@ -1,21 +1,24 @@
 {
-  "name": "2nd-finance-plan",
-  "version": "0.1.0",
+  "name": "finance-plan",
+  "version": "2.0.0",
   "private": true,
-  "description": "Sistema de planejamento financeiro com foco em acessibilidade (usuária idosa). Vue3 + Quasar / NestJS + Prisma.",
+  "workspaces": ["apps/*"],
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "scripts": {
-    "install:all": "npm install && npm --prefix apps/api install && npm --prefix apps/web install",
-    "dev": "concurrently -n API,WEB -c blue,green \"npm --prefix apps/api run start:dev\" \"npm --prefix apps/web run dev\"",
-    "dev:api": "npm --prefix apps/api run start:dev",
-    "dev:web": "npm --prefix apps/web run dev",
-    "build": "npm --prefix apps/api run build && npm --prefix apps/web run build",
-    "prisma:migrate": "npm --prefix apps/api run prisma:migrate",
-    "prisma:generate": "npm --prefix apps/api run prisma:generate"
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run start:dev --workspace apps/api",
+    "dev:web": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/api && npm run build --workspace apps/web",
+    "build:web": "npm run build --workspace apps/web",
+    "build:api": "npm run build --workspace apps/api",
+    "prisma:generate": "npm run prisma:generate --workspace apps/api",
+    "prisma:pull": "npm run prisma:pull --workspace apps/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace apps/api",
+    "prisma:seed": "npm run prisma:seed --workspace apps/api"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
-  },
-  "engines": {
-    "node": ">=20"
+    "concurrently": "^9.1.0"
   }
 }
