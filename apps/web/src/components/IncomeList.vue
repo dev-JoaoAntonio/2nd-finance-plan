@@ -2,7 +2,7 @@
   <q-list separator>
     <q-item v-for="inc in incomes" :key="inc.id" class="q-py-md">
       <q-item-section avatar>
-        <q-avatar style="background: #21ba451a" size="44px">
+        <q-avatar :style="{ background: positiveTint }" size="44px">
           <q-icon name="account_balance" size="24px" color="positive" />
         </q-avatar>
       </q-item-section>
@@ -59,6 +59,7 @@ import { useQuasar } from 'quasar';
 import { useIncomeStore } from '@/stores/income';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { apiErrorMessage } from '@/lib/api';
+import { activeBrand } from '@/brands';
 import type { Income } from '@/lib/types';
 
 defineProps<{ incomes: Income[] }>();
@@ -66,6 +67,10 @@ const emit = defineEmits<{ edit: [Income]; changed: [] }>();
 
 const $q = useQuasar();
 const incomeStore = useIncomeStore();
+
+// Tom suave derivado da cor "positive" da marca (hex + alpha), igual ao padrão
+// usado em ExpenseList/StatCard — segue o verde da marca ativa.
+const positiveTint = `${activeBrand.colors.positive}1A`;
 
 function confirmDelete(inc: Income) {
   $q.dialog({

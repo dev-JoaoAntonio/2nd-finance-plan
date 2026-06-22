@@ -6,7 +6,10 @@
   "description": "Front-end Vue3 + Quasar do planejador financeiro (foco em acessibilidade)",
   "scripts": {
     "dev": "vite",
+    "dev:valdeci": "vite --mode valdeci",
     "build": "vite build",
+    "build:original": "vite build --mode original",
+    "build:valdeci": "vite build --mode valdeci",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit"
   },

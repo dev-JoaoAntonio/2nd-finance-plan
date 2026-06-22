@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { DEFAULT_CATEGORIES } from './default-categories';
+import { getDefaultCategories } from './default-categories';
 
 @Injectable()
 export class CategorizationService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Cria as categorias e regras padrão para um usuário recém-criado.
-   * Idempotente: se o usuário já tem categorias, não faz nada.
+   * Cria as categorias e regras padrão para um usuário recém-criado, conforme
+   * a marca (white-label). Idempotente: se o usuário já tem categorias, não faz nada.
    */
-  async seedDefaults(userId: string): Promise<void> {
+  async seedDefaults(userId: string, brand?: string): Promise<void> {
     const existing = await this.prisma.category.count({ where: { userId } });
     if (existing > 0) return;
 
-    for (const def of DEFAULT_CATEGORIES) {
+    for (const def of getDefaultCategories(brand)) {
       await this.prisma.category.create({
         data: {
           userId,

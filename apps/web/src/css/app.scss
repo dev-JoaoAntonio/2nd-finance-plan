@@ -1,12 +1,29 @@
 /* A fonte Atkinson Hyperlegible é importada no main.ts (resolução via Vite). */
 
 /* ───────────────────────────────────────────────────────────
-   Escala de fonte acessível.
+   Variáveis de tema dirigidas pela MARCA ativa.
+   As --fp-* são definidas em runtime por brands/apply.ts (cores de
+   superfície, fonte etc.). Os valores abaixo são apenas fallbacks
+   (marca "original") caso o JS ainda não tenha rodado.
+
    --fp-font-base é controlada pelo botão A− / A+ (store "ui").
    Componentes-chave usam "em" para acompanhar a escala.
    ─────────────────────────────────────────────────────────── */
 :root {
   --fp-font-base: 18px;
+  --fp-font-family: 'Atkinson Hyperlegible', 'Segoe UI', Roboto, sans-serif;
+  --fp-text: #0f172a;
+  --fp-text-muted: #475569;
+  --fp-page-bg: #f1f5f9;
+  --fp-card-bg: #ffffff;
+  --fp-card-border: #e2e8f0;
+  --fp-focus-ring: #0369a1;
+  --fp-positive-text: #047857;
+  --fp-negative-text: #b91c1c;
+  --fp-nav-active-bg: #e0f2fe;
+  --fp-nav-active-fg: #0369a1;
+  --fp-auth-grad-from: #e0f2fe;
+  --fp-auth-grad-to: #f1f5f9;
 }
 
 html {
@@ -14,11 +31,11 @@ html {
 }
 
 body {
-  font-family: 'Atkinson Hyperlegible', 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--fp-font-family);
   font-size: 1rem;
   line-height: 1.5;
-  color: #0f172a; /* texto quase-preto: contraste alto (~16:1 no branco) */
-  background: #f1f5f9;
+  color: var(--fp-text); /* texto quase-preto: contraste alto */
+  background: var(--fp-page-bg);
 }
 
 /* Faz os componentes Quasar acompanharem a escala de fonte (padrão deles é menor). */
@@ -37,7 +54,7 @@ body {
   font-weight: 700;
 }
 
-/* Alvos de toque grandes (≥ 48px) e botões confortáveis para a idosa. */
+/* Alvos de toque grandes (≥ 48px) e botões confortáveis. */
 .q-btn {
   min-height: 48px;
   font-weight: 700;
@@ -49,7 +66,7 @@ body {
 
 /* Foco bem visível (acessibilidade de teclado). */
 *:focus-visible {
-  outline: 3px solid #0369a1;
+  outline: 3px solid var(--fp-focus-ring);
   outline-offset: 2px;
 }
 
@@ -57,16 +74,16 @@ body {
 .fp-page-title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--fp-text);
   line-height: 1.2;
 }
 .fp-section-title {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--fp-text);
 }
 .fp-muted {
-  color: #475569; /* cinza com contraste adequado (~7:1) */
+  color: var(--fp-text-muted);
 }
 .fp-amount {
   font-variant-numeric: tabular-nums;
@@ -76,16 +93,16 @@ body {
 /* Cartões com leve elevação e cantos generosos. */
 .fp-card {
   border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--fp-card-bg);
+  border: 1px solid var(--fp-card-border);
 }
 
 /* Realces semânticos (nunca só cor: sempre acompanham texto/ícone). */
 .fp-positive {
-  color: #047857;
+  color: var(--fp-positive-text);
 }
 .fp-negative {
-  color: #b91c1c;
+  color: var(--fp-negative-text);
 }
 
 /* Reduz animações para quem prefere. */

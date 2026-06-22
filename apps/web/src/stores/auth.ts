@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { api, TOKEN_KEY } from '@/lib/api';
+import { activeBrand } from '@/brands';
 import type { User } from '@/lib/types';
 
 const USER_KEY = 'fp_user';
@@ -24,7 +25,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function register(name: string, email: string, password: string) {
-    const { data } = await api.post('/auth/register', { name, email, password });
+    // `brand` informa ao backend qual conjunto de categorias padrão semear.
+    const { data } = await api.post('/auth/register', {
+      name,
+      email,
+      password,
+      brand: activeBrand.id,
+    });
     setSession(data.token, data.user);
   }
 

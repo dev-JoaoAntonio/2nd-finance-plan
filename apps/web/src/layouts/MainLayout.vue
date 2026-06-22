@@ -13,12 +13,15 @@
           @click="drawer = !drawer"
         />
         <q-toolbar-title class="row items-center no-wrap">
-          <q-icon name="savings" size="32px" class="q-mr-sm" />
-          <span class="text-weight-bold">Meu Planejador</span>
+          <q-icon :name="brand.logoIcon" size="32px" class="q-mr-sm" />
+          <span class="text-weight-bold">{{ brand.shortName }}</span>
         </q-toolbar-title>
 
         <!-- Controle de tamanho de letra (acessibilidade) -->
-        <div class="row items-center no-wrap q-gutter-xs">
+        <div
+          v-if="brand.accessibility.showFontControl"
+          class="row items-center no-wrap q-gutter-xs"
+        >
           <q-btn
             flat
             round
@@ -110,6 +113,7 @@ import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
+import { activeBrand as brand } from '@/brands';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -144,10 +148,10 @@ function confirmLogout() {
 
 <style scoped>
 .fp-nav-active {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--fp-nav-active-bg);
+  color: var(--fp-nav-active-fg);
 }
 .fp-nav-active :deep(.q-icon) {
-  color: #0369a1;
+  color: var(--fp-nav-active-fg);
 }
 </style>

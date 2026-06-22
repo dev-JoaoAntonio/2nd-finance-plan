@@ -1,4 +1,10 @@
-import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -13,4 +19,10 @@ export class RegisterDto {
   @MinLength(6, { message: 'A senha precisa ter pelo menos 6 caracteres.' })
   @MaxLength(72)
   password: string;
+
+  /** Marca (white-label) que define quais categorias padrão semear. Opcional. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  brand?: string;
 }

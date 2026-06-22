@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { formatCurrency, formatMonthShort, formatMonthLabel } from '@/lib/format';
+import { activeBrand } from '@/brands';
 import type { TrendPoint } from '@/lib/types';
 
 const props = withDefaults(
@@ -22,7 +23,7 @@ const options = computed(() => ({
     toolbar: { show: false },
     zoom: { enabled: false },
   },
-  colors: ['#0369A1'],
+  colors: [activeBrand.colors.primary],
   stroke: { curve: 'smooth', width: 3 },
   fill: {
     type: 'gradient',

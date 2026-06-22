@@ -1,6 +1,6 @@
 <template>
   <q-card flat bordered class="fp-card q-pa-lg">
-    <div class="fp-section-title q-mb-md">Entrar na minha conta</div>
+    <div class="fp-section-title q-mb-md">{{ brand.copy.loginTitle }}</div>
 
     <q-form @submit.prevent="onSubmit">
       <q-input
@@ -62,6 +62,7 @@ import { useQuasar } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { apiErrorMessage } from '@/lib/api';
+import { activeBrand as brand } from '@/brands';
 
 const $q = useQuasar();
 const route = useRoute();

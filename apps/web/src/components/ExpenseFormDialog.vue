@@ -82,8 +82,8 @@
           <q-banner
             v-if="!isEdit && categoryValue === AUTO"
             dense
-            class="bg-blue-1 text-primary rounded-borders"
-            style="font-size: 0.95rem"
+            class="text-primary rounded-borders"
+            style="font-size: 0.95rem; background-color: var(--fp-nav-active-bg)"
           >
             <template #avatar><q-icon name="auto_awesome" color="primary" /></template>
             A categoria será sugerida automaticamente pela descrição. Você poderá trocar depois.
@@ -111,6 +111,7 @@ import { ref, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useExpensesStore } from '@/stores/expenses';
 import { apiErrorMessage } from '@/lib/api';
+import { activeBrand as brand } from '@/brands';
 import { formatDate, todayISODate } from '@/lib/format';
 import type { Category, Expense } from '@/lib/types';
 
@@ -154,7 +155,7 @@ const categoryOptions = computed(() => {
   }));
   const head = isEdit.value
     ? [{ label: 'Sem categoria', value: NONE, icon: 'block', color: '#94a3b8' }]
-    : [{ label: 'Sugerir automaticamente', value: AUTO, icon: 'auto_awesome', color: '#0369A1' }];
+    : [{ label: 'Sugerir automaticamente', value: AUTO, icon: 'auto_awesome', color: brand.colors.primary }];
   return [...head, ...cats];
 });
 

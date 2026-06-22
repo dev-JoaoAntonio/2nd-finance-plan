@@ -8,6 +8,8 @@ declare module '*.vue' {
 
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string;
+  /** Marca ativa (white-label). Definida por env ou pelo `--mode` do Vite. */
+  readonly VITE_BRAND?: string;
 }
 
 interface ImportMeta {

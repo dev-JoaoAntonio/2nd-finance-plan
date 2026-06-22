@@ -20,6 +20,8 @@ import router from './router';
 import { api } from './lib/api';
 import { useAuthStore } from './stores/auth';
 import { useUiStore } from './stores/ui';
+import { activeBrand } from './brands';
+import { applyBrand } from './brands/apply';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -34,6 +36,9 @@ app.use(Quasar, {
     notify: { position: 'top', timeout: 3500 },
   },
 });
+
+// Aplica a identidade visual da marca ativa (cores, tema, fonte, título).
+applyBrand(activeBrand);
 
 // Aplica a escala de fonte salva (acessibilidade) antes de montar.
 useUiStore().init();

@@ -164,3 +164,19 @@ export const DEFAULT_CATEGORIES: DefaultCategory[] = [
 ];
 
 export const FALLBACK_CATEGORY_NAME = 'Outros';
+
+/**
+ * Conjuntos de categorias padrão por MARCA (white-label). O front envia o
+ * `brand` no cadastro e o backend semeia o conjunto correspondente.
+ * Hoje todas as marcas usam o mesmo conjunto pt-BR; para diferenciar uma
+ * pessoa, basta criar outro array e registrá-lo aqui.
+ */
+const CATEGORY_SETS: Record<string, DefaultCategory[]> = {
+  original: DEFAULT_CATEGORIES,
+  valdeci: DEFAULT_CATEGORIES,
+};
+
+/** Retorna o conjunto de categorias da marca (cai no padrão se desconhecida). */
+export function getDefaultCategories(brand?: string): DefaultCategory[] {
+  return (brand && CATEGORY_SETS[brand]) || DEFAULT_CATEGORIES;
+}

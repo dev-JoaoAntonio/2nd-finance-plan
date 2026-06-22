@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { activeBrand } from '@/brands';
 
 const SCALE_KEY = 'fp_font_scale';
 
-// Níveis de tamanho de fonte (px da base). Padrão = 18px (confortável p/ idosa).
-const LEVELS = [16, 18, 20, 22, 24];
-const DEFAULT_INDEX = 1;
+// Níveis de tamanho de fonte (px da base) vêm da marca ativa (acessibilidade).
+const LEVELS = activeBrand.accessibility.fontLevels;
+const DEFAULT_INDEX = activeBrand.accessibility.defaultLevelIndex;
 
 export const useUiStore = defineStore('ui', () => {
   const fontIndex = ref(readStoredIndex());

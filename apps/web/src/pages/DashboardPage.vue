@@ -5,7 +5,7 @@
       <div>
         <div class="fp-page-title">Olá, {{ firstName }} 👋</div>
         <div class="fp-muted" style="font-size: 1.05rem">
-          Veja um resumo dos seus gastos.
+          {{ brand.copy.dashboardSubtitle }}
         </div>
       </div>
       <month-selector :model-value="dashboard.month" @update:model-value="dashboard.setMonth" />
@@ -15,13 +15,13 @@
 
     <template v-if="!dashboard.loading">
       <!-- Cartões de resumo -->
-      <div class="row q-col-gutter-md q-mb-lg">
+      <div v-if="brand.dashboard.widgets.includes('summary')" class="row q-col-gutter-md q-mb-lg">
         <div class="col-12 col-sm-4">
           <stat-card
             label="Total gasto no mês"
             :value="formatCurrency(summary?.total ?? 0)"
             icon="account_balance_wallet"
-            color="#0369A1"
+            :color="brand.colors.primary"
             :hint="`${summary?.count ?? 0} lançamento(s)`"
             hint-icon="receipt_long"
             hint-class="fp-muted"
@@ -43,7 +43,7 @@
             label="Maior categoria"
             :value="summary?.topCategory?.name ?? '—'"
             :icon="summary?.topCategory?.icon ?? 'category'"
-            :color="summary?.topCategory?.color ?? '#7C3AED'"
+            :color="summary?.topCategory?.color ?? brand.colors.accent"
             :hint="summary?.topCategory ? `${formatCurrency(summary.topCategory.total)} (${summary.topCategory.pct}%)` : 'Sem gastos ainda'"
           />
         </div>
@@ -51,7 +51,7 @@
 
       <div class="row q-col-gutter-md">
         <!-- Gastos por categoria: rosca + tabela (fallback acessível) -->
-        <div class="col-12 col-md-6">
+        <div v-if="brand.dashboard.widgets.includes('categoryDonut')" class="col-12 col-md-6">
           <q-card flat bordered class="fp-card full-height">
             <q-card-section>
               <div class="fp-section-title">Gastos por categoria</div>
@@ -75,9 +75,11 @@
 
         <!-- Evolução mensal + últimos lançamentos -->
         <div class="col-12 col-md-6">
-          <q-card flat bordered class="fp-card q-mb-md">
+          <q-card v-if="brand.dashboard.widgets.includes('trend')" flat bordered class="fp-card q-mb-md">
             <q-card-section>
-              <div class="fp-section-title">Evolução dos últimos 6 meses</div>
+              <div class="fp-section-title">
+                Evolução dos últimos {{ brand.dashboard.trendMonths }} meses
+              </div>
             </q-card-section>
             <q-separator />
             <q-card-section>
@@ -85,7 +87,7 @@
             </q-card-section>
           </q-card>
 
-          <q-card flat bordered class="fp-card">
+          <q-card v-if="brand.dashboard.widgets.includes('recent')" flat bordered class="fp-card">
             <q-card-section class="row items-center justify-between">
               <div class="fp-section-title">Últimos lançamentos</div>
               <q-btn
@@ -123,6 +125,7 @@ import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
 import { useDashboardStore } from '@/stores/dashboard';
 import { useAuthStore } from '@/stores/auth';
+import { activeBrand as brand } from '@/brands';
 import { formatCurrency } from '@/lib/format';
 import MonthSelector from '@/components/MonthSelector.vue';
 import StatCard from '@/components/StatCard.vue';

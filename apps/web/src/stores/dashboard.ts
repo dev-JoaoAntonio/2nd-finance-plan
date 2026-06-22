@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { api } from '@/lib/api';
 import { currentMonthKey } from '@/lib/format';
+import { activeBrand } from '@/brands';
 import type { Summary, CategoryBreakdown, TrendPoint, Expense } from '@/lib/types';
 
 export const useDashboardStore = defineStore('dashboard', () => {
@@ -21,7 +22,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
           params: { month: month.value },
         }),
         api.get<TrendPoint[]>('/analytics/monthly-trend', {
-          params: { month: month.value, months: 6 },
+          params: { month: month.value, months: activeBrand.dashboard.trendMonths },
         }),
         api.get<Expense[]>('/expenses', { params: { month: month.value } }),
       ]);

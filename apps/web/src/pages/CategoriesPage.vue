@@ -17,7 +17,11 @@
       />
     </div>
 
-    <q-banner class="bg-blue-1 text-primary rounded-borders q-mb-md" dense>
+    <q-banner
+      class="text-primary rounded-borders q-mb-md"
+      style="background-color: var(--fp-nav-active-bg)"
+      dense
+    >
       <template #avatar><q-icon name="lightbulb" color="primary" /></template>
       Ex.: a palavra <b>"farmácia"</b> na categoria <b>Saúde</b> faz um gasto descrito como
       "Compra na farmácia" entrar em Saúde sozinho.

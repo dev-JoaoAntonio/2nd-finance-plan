@@ -9,8 +9,15 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // CORS aceita uma lista de origens separada por vírgula (um site por marca).
+  const corsOrigins = config
+    .get<string>('CORS_ORIGIN', 'http://localhost:9000')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: config.get<string>('CORS_ORIGIN', 'http://localhost:9000'),
+    origin: corsOrigins,
     credentials: true,
   });
 

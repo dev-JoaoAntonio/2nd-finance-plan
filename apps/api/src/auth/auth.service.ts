@@ -37,8 +37,8 @@ export class AuthService {
       data: { name: dto.name.trim(), email, passwordHash },
     });
 
-    // Semeia categorias + regras padrão para o novo usuário.
-    await this.categorization.seedDefaults(user.id);
+    // Semeia categorias + regras padrão para o novo usuário (conforme a marca).
+    await this.categorization.seedDefaults(user.id, dto.brand);
 
     return this.buildAuthResponse(user);
   }
