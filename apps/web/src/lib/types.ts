@@ -41,6 +41,16 @@ export interface Expense {
   autoCategorized?: boolean;
 }
 
+export interface Income {
+  id: string;
+  amount: number;
+  source: string; // de onde vem o dinheiro
+  note: string | null;
+  date: string; // ISO
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CategoryBreakdown {
   categoryId: string | null;
   name: string;

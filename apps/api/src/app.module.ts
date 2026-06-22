@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CategorizationModule } from './categorization/categorization.module';
 import { ExpensesModule } from './expenses/expenses.module';
+import { IncomeModule } from './income/income.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     UsersModule,
     CategoriesModule,
     ExpensesModule,
+    IncomeModule,
     AnalyticsModule,
   ],
 })

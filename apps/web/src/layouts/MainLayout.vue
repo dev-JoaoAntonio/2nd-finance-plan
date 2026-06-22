@@ -122,6 +122,7 @@ const firstName = computed(() => auth.user?.name?.split(' ')[0] ?? 'Conta');
 
 const nav = [
   { name: 'dashboard', label: 'Início', icon: 'home' },
+  { name: 'income', label: 'Minha renda', icon: 'savings' },
   { name: 'expenses', label: 'Meus gastos', icon: 'receipt_long' },
   { name: 'categories', label: 'Categorias', icon: 'sell' },
   { name: 'account', label: 'Minha conta', icon: 'account_circle' },

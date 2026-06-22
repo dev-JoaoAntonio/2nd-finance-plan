@@ -13,6 +13,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { title: 'Início' },
       },
       {
+        path: 'renda',
+        name: 'income',
+        component: () => import('@/pages/IncomePage.vue'),
+        meta: { title: 'Minha renda' },
+      },
+      {
         path: 'gastos',
         name: 'expenses',
         component: () => import('@/pages/ExpensesPage.vue'),
