@@ -48,6 +48,7 @@ export const useFinanceStore = defineStore('finance', () => {
   const income = ref(0);
   const loading = ref(false);
   const initialized = ref(false);
+  const initializing = ref(false);
   const transactions = ref<Transaction[]>([]);
   const categories = ref<Category[]>([]);
   const summary = ref<CategorySummary[]>([]);
@@ -238,12 +239,22 @@ export const useFinanceStore = defineStore('finance', () => {
   }
 
   async function init() {
-    if (initialized.value) return;
-    categories.value = await categoriesService.list();
-    await refreshHistory();
-    await loadMonth();
-    await refreshContributions();
-    initialized.value = true;
+    if (initialized.value || initializing.value) return;
+    initializing.value = true;
+    try {
+      // Carrega categorias, histórico e o mês em paralelo (não dependem entre si).
+      const [cats] = await Promise.all([
+        categoriesService.list(),
+        refreshHistory(),
+        loadMonth(),
+      ]);
+      categories.value = cats;
+      // Aportes dependem das metas já carregadas em loadMonth().
+      await refreshContributions();
+      initialized.value = true;
+    } finally {
+      initializing.value = false;
+    }
   }
 
   async function setMonth(ref: string) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useFinanceStore } from '@/stores/finance';
@@ -35,11 +35,21 @@ function toggleSidebar() {
   localStorage.setItem(SIDEBAR_KEY, String(expanded.value));
 }
 
-onMounted(async () => {
+async function ensureData() {
   if (!auth.isAuthenticated) return;
   await auth.refreshUser();
   if (auth.isAuthenticated) await finance.init();
-});
+}
+
+// Carrega no mount (refresh/abertura direta) e também quando o login ocorre
+// (o App já está montado, então o onMounted não dispara de novo nesse caso).
+onMounted(ensureData);
+watch(
+  () => auth.isAuthenticated,
+  (now, before) => {
+    if (now && !before) ensureData();
+  },
+);
 </script>
 
 <template>
