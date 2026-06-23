@@ -22,6 +22,9 @@ let timer: number | undefined;
 function next() {
   current.value = (current.value + 1) % slides.length;
 }
+function prev() {
+  current.value = (current.value - 1 + slides.length) % slides.length;
+}
 function startAutoplay() {
   timer = window.setInterval(() => {
     if (!paused.value) next();
@@ -58,7 +61,7 @@ async function onSubmit() {
       <!-- formulário -->
       <div class="flex items-center justify-center p-8 sm:p-12 lg:p-16">
         <div class="w-full max-w-sm">
-          <h1 class="display text-4xl leading-[1.05] sm:text-5xl">Bem-vindo de volta!</h1>
+          <h1 class="display text-4xl leading-[1.05] sm:text-5xl">Bem-vinda de volta!</h1>
 
           <form class="mt-10 space-y-4" @submit.prevent="onSubmit">
             <p class="text-sm font-semibold text-ink-800">Acesse com a sua conta</p>
@@ -115,6 +118,23 @@ async function onSubmit() {
             class="absolute inset-0"
             style="background-image: linear-gradient(to top, rgba(10, 16, 32, 0.85) 0%, rgba(10, 16, 32, 0) 60%)"
           />
+
+          <button
+            type="button"
+            aria-label="Imagem anterior"
+            class="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-content-center rounded-full bg-black/25 text-xl leading-none text-white backdrop-blur-sm transition hover:bg-black/40"
+            @click="prev"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label="Próxima imagem"
+            class="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-content-center rounded-full bg-black/25 text-xl leading-none text-white backdrop-blur-sm transition hover:bg-black/40"
+            @click="next"
+          >
+            ›
+          </button>
 
           <div class="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-9 text-center text-white">
             <p class="display text-2xl leading-tight text-white sm:text-3xl">O seu resumo financeiro.<br />O seu futuro.</p>
