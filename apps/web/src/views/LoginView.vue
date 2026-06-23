@@ -8,16 +8,19 @@ const router = useRouter();
 const auth = useAuthStore();
 const finance = useFinanceStore();
 
-const slides = ['/login/main.svg', '/login/slide-2.svg', '/login/slide-3.svg', '/login/slide-4.svg'];
+const slides = [
+  '/login/slide-1.jpg',
+  '/login/slide-2.jpg',
+  '/login/slide-3.jpg',
+  '/login/slide-4.jpg',
+  '/login/slide-5.jpg',
+];
 const current = ref(0);
 const paused = ref(false);
 let timer: number | undefined;
 
 function next() {
   current.value = (current.value + 1) % slides.length;
-}
-function prev() {
-  current.value = (current.value - 1 + slides.length) % slides.length;
 }
 function startAutoplay() {
   timer = window.setInterval(() => {
@@ -48,62 +51,84 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="grid min-h-screen lg:grid-cols-2">
-    <!-- carrossel -->
+  <div class="flex min-h-screen items-center justify-center bg-slate-100 p-4 sm:p-8">
     <div
-      class="relative hidden overflow-hidden lg:block"
-      @mouseenter="paused = true"
-      @mouseleave="paused = false"
+      class="grid w-full max-w-5xl overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)] lg:grid-cols-2"
     >
+      <!-- formulário -->
+      <div class="flex items-center justify-center p-8 sm:p-12 lg:p-16">
+        <div class="w-full max-w-sm">
+          <h1 class="display text-4xl leading-[1.05] sm:text-5xl">Bem-vindo de volta!</h1>
+
+          <form class="mt-10 space-y-4" @submit.prevent="onSubmit">
+            <p class="text-sm font-semibold text-ink-800">Acesse com a sua conta</p>
+
+            <input
+              v-model="username"
+              class="login-input"
+              autocomplete="username"
+              aria-label="Usuário"
+              placeholder="Usuário"
+            />
+            <input
+              v-model="password"
+              type="password"
+              class="login-input"
+              autocomplete="current-password"
+              aria-label="Senha"
+              placeholder="Senha"
+            />
+
+            <p class="text-right text-xs font-medium text-ink-400">Esqueceu a senha? Fale com o admin.</p>
+
+            <p v-if="error" class="text-sm font-medium text-rose-600">{{ error }}</p>
+
+            <button type="submit" class="login-btn w-full" :disabled="loading">
+              {{ loading ? 'Entrando...' : 'Entrar' }}
+            </button>
+          </form>
+
+          <div
+            class="mt-9 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400"
+          >
+            <span class="h-px flex-1 bg-ink-200" />
+            Finance Plan · Ana &amp; João
+            <span class="h-px flex-1 bg-ink-200" />
+          </div>
+        </div>
+      </div>
+
+      <!-- carrossel -->
       <div
-        v-for="(s, i) in slides"
-        :key="s"
-        class="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-        :style="{ backgroundImage: `url(${s})`, opacity: i === current ? 1 : 0 }"
-      />
-      <div class="absolute inset-0 bg-gradient-to-t from-ink-900/60 to-transparent" />
-      <div class="absolute bottom-12 left-10 right-10 text-white">
-        <p class="display text-3xl">O seu resumo financeiro.<br />O seu futuro.</p>
-        <p class="mt-2 text-white/80">Valdeci</p>
-      </div>
-      <button class="absolute left-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-content-center rounded-full bg-white/20 text-white backdrop-blur hover:bg-white/30" @click="prev">‹</button>
-      <button class="absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-content-center rounded-full bg-white/20 text-white backdrop-blur hover:bg-white/30" @click="next">›</button>
-      <div class="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-2">
-        <button
-          v-for="(s, i) in slides"
-          :key="`d${i}`"
-          class="h-2 rounded-full transition-all"
-          :class="i === current ? 'w-6 bg-white' : 'w-2 bg-white/50'"
-          @click="current = i"
-        />
-      </div>
-    </div>
+        class="relative hidden p-3 lg:block"
+        @mouseenter="paused = true"
+        @mouseleave="paused = false"
+      >
+        <div class="relative h-full w-full overflow-hidden rounded-3xl">
+          <div
+            v-for="(s, i) in slides"
+            :key="s"
+            class="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
+            :style="{ backgroundImage: `url(${s})`, opacity: i === current ? 1 : 0 }"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-ink-900/75 via-ink-900/15 to-transparent" />
 
-    <!-- formulário -->
-    <div class="flex items-center justify-center bg-gradient-to-b from-sky-50 via-white to-pink-50 p-6">
-      <div class="w-full max-w-sm">
-        <h1 class="display text-3xl">Bem-vindo de volta!</h1>
-        <p class="mt-1 text-ink-500">Entre para acompanhar seu mês.</p>
+          <div class="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-9 text-center text-white">
+            <p class="display text-2xl leading-tight sm:text-3xl">O nosso resumo financeiro.<br />O nosso futuro.</p>
+            <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">Ana e João</p>
 
-        <form class="mt-8 space-y-4" @submit.prevent="onSubmit">
-          <div>
-            <label class="label">Usuário</label>
-            <input v-model="username" class="login-input" autocomplete="username" placeholder="valdeci" />
+            <div class="mt-5 flex gap-2">
+              <button
+                v-for="(s, i) in slides"
+                :key="`d${i}`"
+                type="button"
+                :aria-label="`Ir para imagem ${i + 1}`"
+                class="h-2 rounded-full transition-all"
+                :class="i === current ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"
+                @click="current = i"
+              />
+            </div>
           </div>
-          <div>
-            <label class="label">Senha</label>
-            <input v-model="password" type="password" class="login-input" autocomplete="current-password" placeholder="••••••" />
-          </div>
-          <p v-if="error" class="text-sm font-medium text-rose-600">{{ error }}</p>
-          <button type="submit" class="login-btn w-full" :disabled="loading">
-            {{ loading ? 'Entrando...' : 'Entrar' }}
-          </button>
-        </form>
-
-        <div class="mt-10 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400">
-          <span class="h-px flex-1 bg-ink-200" />
-          Finance Plan · Valdeci
-          <span class="h-px flex-1 bg-ink-200" />
         </div>
       </div>
     </div>
@@ -118,6 +143,9 @@ async function onSubmit() {
   padding: 0.875rem 1.25rem;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.login-input::placeholder {
+  color: #9aa3af;
 }
 .login-input:focus {
   border-color: #467a58;
