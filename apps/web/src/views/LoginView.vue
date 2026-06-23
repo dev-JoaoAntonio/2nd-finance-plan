@@ -111,10 +111,13 @@ async function onSubmit() {
             class="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
             :style="{ backgroundImage: `url(${s})`, opacity: i === current ? 1 : 0 }"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-ink-900/75 via-ink-900/15 to-transparent" />
+          <div
+            class="absolute inset-0"
+            style="background-image: linear-gradient(to top, rgba(10, 16, 32, 0.85) 0%, rgba(10, 16, 32, 0) 60%)"
+          />
 
           <div class="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-9 text-center text-white">
-            <p class="display text-2xl leading-tight sm:text-3xl">O seu resumo financeiro.<br />O seu futuro.</p>
+            <p class="display text-2xl leading-tight text-white sm:text-3xl">O seu resumo financeiro.<br />O seu futuro.</p>
             <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">Valdeci</p>
 
             <div class="mt-5 flex gap-2">
