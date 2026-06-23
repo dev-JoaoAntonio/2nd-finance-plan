@@ -92,7 +92,7 @@ async function onSubmit() {
             class="mt-9 flex items-center gap-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400"
           >
             <span class="h-px flex-1 bg-ink-200" />
-            Finance Plan · Ana &amp; João
+            Finance Plan · Valdeci
             <span class="h-px flex-1 bg-ink-200" />
           </div>
         </div>
@@ -114,8 +114,8 @@ async function onSubmit() {
           <div class="absolute inset-0 bg-gradient-to-t from-ink-900/75 via-ink-900/15 to-transparent" />
 
           <div class="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-9 text-center text-white">
-            <p class="display text-2xl leading-tight sm:text-3xl">O nosso resumo financeiro.<br />O nosso futuro.</p>
-            <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">Ana e João</p>
+            <p class="display text-2xl leading-tight sm:text-3xl">O seu resumo financeiro.<br />O seu futuro.</p>
+            <p class="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">Valdeci</p>
 
             <div class="mt-5 flex gap-2">
               <button
@@ -153,7 +153,7 @@ async function onSubmit() {
 }
 .login-btn {
   border-radius: 0.75rem;
-  background: #a8675f;
+  background: #3e6b4f; /* verde musgo — primária Valdeci (sky-600) */
   padding: 0.875rem 1.25rem;
   font-weight: 600;
   color: #fff;
@@ -161,7 +161,7 @@ async function onSubmit() {
   transition: background 0.15s ease;
 }
 .login-btn:hover {
-  background: #955650;
+  background: #2f5740; /* sky-700 */
 }
 .login-btn:disabled {
   opacity: 0.6;
