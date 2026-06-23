@@ -56,10 +56,10 @@ async function onSubmit() {
 <template>
   <div class="flex min-h-screen items-center justify-center bg-slate-100 p-4 sm:p-8">
     <div
-      class="grid w-full max-w-5xl overflow-hidden rounded-[28px] bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)] lg:grid-cols-2"
+      class="flex w-full max-w-5xl flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-0 lg:overflow-hidden lg:rounded-[28px] lg:bg-white lg:shadow-[0_30px_80px_-40px_rgba(15,23,42,0.45)]"
     >
       <!-- formulário -->
-      <div class="flex items-center justify-center p-8 sm:p-12 lg:p-16">
+      <div class="order-2 flex items-center justify-center rounded-[28px] bg-white p-8 shadow-card sm:p-12 lg:order-1 lg:rounded-none lg:bg-transparent lg:p-16 lg:shadow-none">
         <div class="w-full max-w-sm">
           <h1 class="display text-4xl leading-[1.05] sm:text-5xl">Bem-vinda de volta!</h1>
 
@@ -103,11 +103,11 @@ async function onSubmit() {
 
       <!-- carrossel -->
       <div
-        class="relative hidden p-3 lg:block"
+        class="relative order-1 h-72 rounded-[28px] bg-white p-2 shadow-card sm:h-80 lg:order-2 lg:h-auto lg:rounded-none lg:bg-transparent lg:p-3 lg:shadow-none"
         @mouseenter="paused = true"
         @mouseleave="paused = false"
       >
-        <div class="relative h-full w-full overflow-hidden rounded-3xl">
+        <div class="relative h-full w-full overflow-hidden rounded-[22px] lg:rounded-3xl">
           <div
             v-for="(s, i) in slides"
             :key="s"
